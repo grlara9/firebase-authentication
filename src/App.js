@@ -1,23 +1,31 @@
 import logo from './logo.svg';
+import Header from './components/Header';
 import './App.css';
+import { useState } from 'react';
 
 function App() {
+  const [posts, setPosts] = useState([
+    {
+      id: 1,
+      title: 'Hello React',
+      content: "The error you're seeing is because npm cannot locate a package.json file in your project directory (C:\Users\ROBERTO\Documents\code__projects). The package.json file is necessary for npm to know what scripts to run and which dependencies to load."
+    },
+    {
+      id: 2,
+      title: 'Second posts',
+      content: "Simple SDK Integration: The Firebase SDK makes it easy to connect to your React app and provides simple methods for signing in, signing up, and managing user sessions."
+    },
+    {
+      id: 3,
+      title: 'Third',
+      content: "Set up a login and register form and use Firebase’s signInWithEmailAndPassword and createUserWithEmailAndPassword methods."
+    },
+  ])
+  
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Header />
+     hello
     </div>
   );
 }
