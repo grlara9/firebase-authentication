@@ -1,10 +1,12 @@
 import React from 'react';
-
+import { Link } from 'react-router-dom';
 const Header = (props) => {
     return (
         <header className='App-header'>
             <ul className='container'>
-                <li>Site Title</li>
+                <li key='home'>
+                    <Link to='/'>My Site</Link>
+                </li>
             </ul>
         </header>
     )
