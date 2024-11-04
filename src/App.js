@@ -35,11 +35,20 @@ function App() {
       content: "Set up a login and register form and use Firebase’s signInWithEmailAndPassword and createUserWithEmailAndPassword methods."
     },
   ])
+  
+
+  const addNewPost =(post) =>{
+    post.id = posts.length + 1;
+    post.slug = encodeURIComponent(
+      post.title.toLowerCase().split(" ").join("-")
+    );
+    setPosts([...posts, post])
+  }
 
   const router = createBrowserRouter( createRoutesFromElements(
     <Route path="/" element={ <Root /> }>
       <Route index element={<Posts posts={posts}/>} />
-      <Route path='/new' element={<PostForm />}
+      <Route path='/new' element={<PostForm addNewPost={addNewPost}/>} />
       <Route path='/post/:postSlug' element={<PostWithParams posts={posts}/>}/>
       <Route path='*' element={<NotFound />} />
 
