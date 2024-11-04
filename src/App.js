@@ -2,6 +2,7 @@ import Root from './components/Root';
 import Header from './components/Header';
 import Posts from './components/Posts';
 import Post from './components/Post';
+import PostForm from './components/PostForm';
 import NotFound from './components/NotFound';
 /*import {
   BrowserRouter as Router,
@@ -38,6 +39,7 @@ function App() {
   const router = createBrowserRouter( createRoutesFromElements(
     <Route path="/" element={ <Root /> }>
       <Route index element={<Posts posts={posts}/>} />
+      <Route path='/new' element={<PostForm />}
       <Route path='/post/:postSlug' element={<PostWithParams posts={posts}/>}/>
       <Route path='*' element={<NotFound />} />
 
@@ -47,33 +49,12 @@ function App() {
   function PostWithParams({posts}){
     const { postSlug } = useParams();
     const post = posts.find((post) => post.slug === postSlug);
-    return <Post post={post} />;
+    //if no posts match the slug accessed, updated the post route to return NotFound
+    return post ? <Post post={post} /> : <NotFound />
+   
   }
 
   return (
-    /*
-    <Router>
-    <div className="App">
-      <Header />
-      <Routes>
-        <Route 
-          exact
-          path='/'
-          render={()=> <Posts posts={posts}/>}
-        />
-        <Route 
-          path='/post/:postSlug'
-          render={(props) => {
-            const post = post.find((post) => post.slug === props.match.params.postSlug);
-            return <Post post={post} />
-          }}
-        />
-        <Route component={NotFound}/>
-
-      </Routes>
-    </div>
-    </Router>
-    */
     <RouterProvider router={router}/>
   );
 }
