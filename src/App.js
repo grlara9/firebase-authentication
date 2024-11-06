@@ -3,7 +3,7 @@ import Header from './components/Header';
 import Posts from './components/Posts';
 import Post from './components/Post';
 import PostForm from './components/PostForm';
-import Message from './components/Message';
+
 import NotFound from './components/NotFound';
 /*import {
   BrowserRouter as Router,
@@ -36,10 +36,9 @@ function App() {
       content: "Set up a login and register form and use Firebase’s signInWithEmailAndPassword and createUserWithEmailAndPassword methods."
     },
   ])
-
   const [message, setMessage] = useState(null)
-
-
+  
+  
   const setFlashMessage = (message) => {
     setMessage(message)
     setTimeout(() => {
@@ -53,13 +52,14 @@ function App() {
       post.title.toLowerCase().split(" ").join("-")
     );
     setPosts([...posts, post])
+    setFlashMessage(`saved`)
   }
 
 
 
   const router = createBrowserRouter( createRoutesFromElements(
-    <Route path="/" element={ <Root /> }>
-      {message && <Message type={message}/>}
+    <Route path="/" element={ <Root  message={message}/> }>
+      
       <Route index element={<Posts posts={posts}/>} />
       <Route path='/new' element={<PostForm addNewPost={addNewPost}/>} />
       <Route path='/post/:postSlug' element={<PostWithParams posts={posts}/>}/>
