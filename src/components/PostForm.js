@@ -5,7 +5,7 @@ import 'react-quill/dist/quill.snow.css';
 
 const PostForm = ({ addNewPost }) => { 
     const [title, setTitle] = useState('');
-    const [content, setcontent] = useState('')
+    const [content, setContent] = useState('')
     const [saved, setSaved] = useState(false);
     const navigate = useNavigate();
 
@@ -55,9 +55,13 @@ const PostForm = ({ addNewPost }) => {
             <p>
                 <label htmlFor="form-content">Content:</label><br />
                 <ReactQuill 
+                    /*
                     onChange={(content, delta, source, editor) => {
                         setcontent(editor.getContents());
                     }}
+                    */
+                    value={content}
+                    onChange={(value) => setContent(value)} 
                 />
             </p>
             <p>
