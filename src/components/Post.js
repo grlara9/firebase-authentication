@@ -3,7 +3,7 @@ import { QuillDeltaToHtmlConverter } from "quill-delta-to-html";
 
 const Post = ({ post }) => {
     // Check if post content is defined and contains ops
-    if (!post || !post.content || !post.content.ops) {
+    if (!post || !post.content ) {
         return <p>Content not available</p>; // Fallback message
     }
 
@@ -18,9 +18,7 @@ const Post = ({ post }) => {
             <h1>{post.title}</h1>
             <div
                 className="content"
-                dangerouslySetInnerHTML={{
-                    __html: contentHTML
-                }}
+                dangerouslySetInnerHTML={{__html: contentHTML}}
             />
         </article>
     );

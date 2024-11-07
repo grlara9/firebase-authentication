@@ -1,30 +1,41 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import ReactQuill from "react-quill";
+import Quill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
 
-const PostForm = ({ addNewPost }) => { 
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState('')
+const PostForm = ({ post:propsPost, addNewPost, updatePost }) => { 
+    const [post, setPost] = useState({ ...propsPost });
     const [saved, setSaved] = useState(false);
     const navigate = useNavigate();
 
+  const prevPostRef = useRef();
+  useEffect(() => {
+    prevPostRef.current = post;
+  }, [post]);
+  const prevPost = prevPostRef.current;
+
+  const quillRef = React.useRef();
+  useEffect(() => {
+    if (prevPost && quillRef.current) {
+      if (propsPost.id !== prevPost.id) {
+        setPost({ ...propsPost });
+        quillRef.current.getEditor().setContents(``);
+      }
+    }
+  }, [prevPost, propsPost]);
+
     const handlePostForm =(e)=> {
         e.preventDefault();
-        if(title){
-            const post = 
-            {
-                title: title,
-                content: content
+        if(post.title){
+            if (updatePost) {
+                updatePost(post);
+              } else {
+                addNewPost(post);
+              }
+              setSaved(true);
+            } else {
+              alert("Title required");
             }
-            addNewPost(post)
-            console.log(post)
-            setSaved(true)
-           
-        }
-        else{
-            alert("Title Required")
-        }
     }
     /*
     The navigate() function should not be called directly inside the return statement 
@@ -47,22 +58,22 @@ const PostForm = ({ addNewPost }) => {
             <p>
                 <label htmlFor="form-title">Title:</label><br />
                 <input 
+                    defautValue={post.title}
                     id="form-title" 
-                    value={title} 
-                    onChange={e => setTitle(e.target.value)} 
+                    value={post.title} 
+                    onChange={e => setPost({...post, title: e.target.value})} 
                 />
             </p>
             <p>
                 <label htmlFor="form-content">Content:</label><br />
-                <ReactQuill 
-                    /*
-                    onChange={(content, delta, source, editor) => {
-                        setcontent(editor.getContents());
-                    }}
-                    */
-                    value={content}
-                    onChange={(value) => setContent(value)} 
-                />
+                <Quill
+                ref={quillRef}
+                defaultValue={post.content}
+                onChange={(content, delta, source, editor) => {
+                setPost({...post, content: editor.getContents(),
+          });
+        }}
+      />
             </p>
             <p>
                 <button type="submit">Save</button>

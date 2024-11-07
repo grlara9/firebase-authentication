@@ -60,7 +60,12 @@ function App() {
   }
 
   const updatePost = (post)=>{
-    
+    post.slug = getNewSlugFromTitle(post.title);
+    const index = posts.findIndex((p) => p.id === post.id);
+    const oldPosts = posts.slice(0, index).concat(posts.slice(index + 1));
+    const updatedPosts = [...oldPosts, post].sort((a, b) => a.id - b.id);
+    setPosts(updatedPosts);
+    setFlashMessage(`updated`);
   }
 
 
@@ -68,7 +73,7 @@ function App() {
   const router = createBrowserRouter( createRoutesFromElements(
     <Route path="/" element={ <Root  message={message}/> }>
       <Route index element={<Posts posts={posts}/>} />
-      <Route path='/new' element={<PostForm addNewPost={addNewPost}/>} />
+      <Route path='/new' element={<PostForm addNewPost={addNewPost} post={{id: 0, slug: "", title: "", content: ""}}/>} />
       <Route path='/post/:postSlug' element={<PostWithParams posts={posts}/>}/>
       <Route path='/edit/:postSlug' element={<EditWithParams posts={posts}/>} />
       <Route path='*' element={<NotFound />} />
@@ -88,7 +93,7 @@ function App() {
     const { postSlug } = useParams();
     const navigate = useNavigate();
     const post = posts.find((post) => post.slug === postSlug);
-
+    console.log('post', post)
     useEffect(() => {
       if(!post){
         navigate('/');
@@ -96,7 +101,7 @@ function App() {
     }, [post, navigate])
     //if no posts match the slug accessed, updated the post route to return NotFound
 
-    return post ? <PostForm post={post} /> :  null;
+    return post ? <PostForm post={post} updatePost={updatePost}/> :  null;
    
   }
 
