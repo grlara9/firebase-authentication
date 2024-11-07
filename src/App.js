@@ -11,9 +11,9 @@ import NotFound from './components/NotFound';
   Redirect,
   Routes,
 } from "react-router-dom";*/
-import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, useParams } from 'react-router-dom';
+import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, useNavigate, useParams} from 'react-router-dom';
 import './App.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function App() {
   const [posts, setPosts] = useState([
@@ -37,13 +37,17 @@ function App() {
     },
   ])
   const [message, setMessage] = useState(null)
-  
+ 
   
   const setFlashMessage = (message) => {
     setMessage(message)
     setTimeout(() => {
       setMessage(null);
     }, 1600)
+  }
+
+  const getNewSlugFromTitle = (title) => {
+    encodeURIComponent(title.toLowerCase().split(" ").join("-"))
   }
 
   const addNewPost =(post) =>{
@@ -55,14 +59,18 @@ function App() {
     setFlashMessage(`saved`)
   }
 
+  const updatePost = (post)=>{
+    
+  }
+
 
 
   const router = createBrowserRouter( createRoutesFromElements(
     <Route path="/" element={ <Root  message={message}/> }>
-      
       <Route index element={<Posts posts={posts}/>} />
       <Route path='/new' element={<PostForm addNewPost={addNewPost}/>} />
       <Route path='/post/:postSlug' element={<PostWithParams posts={posts}/>}/>
+      <Route path='/edit/:postSlug' element={<EditWithParams posts={posts}/>} />
       <Route path='*' element={<NotFound />} />
 
     </Route>
@@ -74,7 +82,25 @@ function App() {
     //if no posts match the slug accessed, updated the post route to return NotFound
     return post ? <Post post={post} /> : <NotFound />
    
+  } 
+
+  function EditWithParams({posts}){
+    const { postSlug } = useParams();
+    const navigate = useNavigate();
+    const post = posts.find((post) => post.slug === postSlug);
+
+    useEffect(() => {
+      if(!post){
+        navigate('/');
+      }
+    }, [post, navigate])
+    //if no posts match the slug accessed, updated the post route to return NotFound
+
+    return post ? <PostForm post={post} /> :  null;
+   
   }
+
+  
 
   return (
     <RouterProvider router={router}/>
