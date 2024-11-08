@@ -128,3 +128,15 @@
   .App button.linkLike:hover {
      cursor: pointer;
   } 
+
+  button.linkLike{
+    background:inherit;
+    border: none;
+    color:#26738D;
+    font-size: inherit;
+    text-decoration: underline;
+  }
+
+  button.linkLike:hover{
+    cursor: pointer;
+  }
