@@ -68,11 +68,20 @@ function App() {
     setFlashMessage(`updated`);
   }
 
+  const deletePost = (post) => {
+    const confirmDelete = window.confirm('Delete this post?');
+    if(!confirmDelete) return;
+
+    const updatedPosts = posts.filter((p) => p.id !== post.id);
+      setPosts(updatedPosts);
+      setFlashMessage(`deleted`);
+  }
+
 
 
   const router = createBrowserRouter( createRoutesFromElements(
     <Route path="/" element={ <Root  message={message}/> }>
-      <Route index element={<Posts posts={posts}/>} />
+      <Route index element={<Posts posts={posts} deletePost={deletePost}/>} />
       <Route path='/new' element={<PostForm addNewPost={addNewPost} post={{id: 0, slug: "", title: "", content: ""}}/>} />
       <Route path='/post/:postSlug' element={<PostWithParams posts={posts}/>}/>
       <Route path='/edit/:postSlug' element={<EditWithParams posts={posts}/>} />
