@@ -1,38 +1,47 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Quill from "react-quill";
-import 'react-quill/dist/quill.snow.css';
 
-const PostForm = ({ post:propsPost, addNewPost, updatePost }) => { 
-    const [post, setPost] = useState({ ...propsPost });
+
+
+const PostForm = ({ addNewPost, updatePost, postToEdit, setPostToEdit }) => { 
+    const [title, setTitle] = useState('')
+    const [content, setContent] = useState('')
+    const [image, setImage] = useState(null)
     const [saved, setSaved] = useState(false);
     const navigate = useNavigate();
 
-  const prevPostRef = useRef();
-  useEffect(() => {
-    prevPostRef.current = post;
-  }, [post]);
-  const prevPost = prevPostRef.current;
-
-  const quillRef = React.useRef();
-  useEffect(() => {
-    if (prevPost && quillRef.current) {
-      if (propsPost.id !== prevPost.id) {
-        setPost({ ...propsPost });
-        quillRef.current.getEditor().setContents(``);
+    useEffect(() => {
+      if (postToEdit) {
+        setTitle(postToEdit.title || '');
+        setContent(postToEdit.content || '');
+        setImage(null); // reset the image since it was previously uploaded
       }
-    }
-  }, [prevPost, propsPost]);
+    }, [postToEdit]);
+
+    const handleImageChange=(e)=>{
+      setImage(e.target.files[0])
+    };
 
     const handlePostForm =(e)=> {
         e.preventDefault();
-        if(post.title){
-            if (updatePost) {
-                updatePost(post);
-              } else {
-                addNewPost(post);
+        if(title && content){
+            const updatedPost = {
+              ...postToEdit,
+              title: title,
+              content: content,
+              imageUrl: image ? URL.createObjectURL(image) : postToEdit?.imageUrl,
+            }
+              //console.log(updatePost)
+              if(postToEdit){
+                updatePost(updatedPost)
+                setPostToEdit(null)
+              }else{
+                addNewPost({ ...updatedPost, id: Date.now() }); // Add mode
+                setSaved(true)
               }
-              setSaved(true);
+              setTitle('');
+              setContent('');
+              setImage(null);
             } else {
               alert("Title required");
             }
@@ -54,29 +63,31 @@ const PostForm = ({ post:propsPost, addNewPost, updatePost }) => {
 
     return(
         <form className="container" onSubmit={handlePostForm}>
-            <h1>add a new post</h1>
+            <h1>{postToEdit ? 'Edit Post' : 'add a new post'}</h1>
             <p>
                 <label htmlFor="form-title">Title:</label><br />
                 <input 
-                    defautValue={post.title}
+                    type="text"
                     id="form-title" 
-                    value={post.title} 
-                    onChange={e => setPost({...post, title: e.target.value})} 
+                    value={title} 
+                    onChange={e => setTitle(e.target.value)} 
                 />
             </p>
             <p>
                 <label htmlFor="form-content">Content:</label><br />
-                <Quill
-                ref={quillRef}
-                defaultValue={post.content}
-                onChange={(content, delta, source, editor) => {
-                setPost({...post, content: editor.getContents(),
-          });
-        }}
+                <textarea
+                placeholder="Content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                required
       />
             </p>
             <p>
-                <button type="submit">Save</button>
+            <input type="file" accept="image/*" onChange={handleImageChange} />
+            </p>
+            <p>
+            <button type="submit">{postToEdit ? 'Update Post' : 'Add Post'}</button>
+            {postToEdit && <button onClick={() => setPostToEdit(null)}>Cancel</button>}
             </p>
         </form>
     )

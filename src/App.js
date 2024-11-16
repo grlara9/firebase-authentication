@@ -1,19 +1,13 @@
+import React, { useEffect, useState } from 'react'
 import Root from './components/Root';
-import Header from './components/Header';
 import Posts from './components/Posts';
 import Post from './components/Post';
 import PostForm from './components/PostForm';
-
 import NotFound from './components/NotFound';
-/*import {
-  BrowserRouter as Router,
-  Route,
-  Redirect,
-  Routes,
-} from "react-router-dom";*/
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, useNavigate, useParams} from 'react-router-dom';
 import './App.css';
-import { useEffect, useState } from 'react';
+
+
 
 function App() {
   const [posts, setPosts] = useState([
@@ -21,11 +15,11 @@ function App() {
       id: 1,
       slug: 'Hello-React',
       title: 'Hello React',
-      content: "The error you're seeing is because npm cannot locate a package.json file in your project directory (C:\Users\ROBERTO\Documents\code__projects). The package.json file is necessary for npm to know what scripts to run and which dependencies to load."
+      content: "The error you're seeing is because npm cannot locate a package.json file in your project directory The package.json file is necessary for npm to know what scripts to run and which dependencies to load."
     },
     {
       id: 2,
-      slug: 'Second-posts',
+      slug: 'Second-posts', 
       title: 'Second posts',
       content: "Simple SDK Integration: The Firebase SDK makes it easy to connect to your React app and provides simple methods for signing in, signing up, and managing user sessions."
     },
@@ -36,6 +30,8 @@ function App() {
       content: "Set up a login and register form and use Firebase’s signInWithEmailAndPassword and createUserWithEmailAndPassword methods."
     },
   ])
+  const [postToEdit, setPostToEdit] = useState(null)
+  
   const [message, setMessage] = useState(null)
  
   
@@ -53,11 +49,16 @@ function App() {
   const addNewPost =(post) =>{
     post.id = posts.length + 1;
     post.slug = encodeURIComponent(
-      post.title.toLowerCase().split(" ").join("-")
+    post.title.toLowerCase().split(" ").join("-")
     );
     setPosts([...posts, post])
     setFlashMessage(`saved`)
   }
+
+  const handleEdit = (post) =>{
+    setPostToEdit(post);
+  }
+  console.log("ghj" + postToEdit)
 
   const updatePost = (post)=>{
     post.slug = getNewSlugFromTitle(post.title);
@@ -68,10 +69,11 @@ function App() {
     setFlashMessage(`updated`);
   }
 
+  
+
   const deletePost = (post) => {
     const confirmDelete = window.confirm('Delete this post?');
     if(!confirmDelete) return;
-
     const updatedPosts = posts.filter((p) => p.id !== post.id);
       setPosts(updatedPosts);
       setFlashMessage(`deleted`);
@@ -81,8 +83,8 @@ function App() {
 
   const router = createBrowserRouter( createRoutesFromElements(
     <Route path="/" element={ <Root  message={message}/> }>
-      <Route index element={<Posts posts={posts} deletePost={deletePost}/>} />
-      <Route path='/new' element={<PostForm addNewPost={addNewPost} post={{id: 0, slug: "", title: "", content: ""}}/>} />
+      <Route index element={<Posts posts={posts} handleEdit={handleEdit} deletePost={deletePost}/>} />
+      <Route path='/new' element={<PostForm addNewPost={addNewPost} postToEdit={postToEdit} setPostToEdit={setPostToEdit}  />} />
       <Route path='/post/:postSlug' element={<PostWithParams posts={posts}/>}/>
       <Route path='/edit/:postSlug' element={<EditWithParams posts={posts}/>} />
       <Route path='*' element={<NotFound />} />
@@ -110,7 +112,8 @@ function App() {
     }, [post, navigate])
     //if no posts match the slug accessed, updated the post route to return NotFound
 
-    return post ? <PostForm post={post} updatePost={updatePost}/> :  null;
+    return post ? <PostForm post={post} 
+    updatePost={updatePost} postToEdit={post} setPostToEdit={() => {}}/> :  null;
    
   }
 
