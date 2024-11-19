@@ -15,6 +15,10 @@ const PostForm = ({ addNewPost, updatePost, postToEdit, setPostToEdit }) => {
         setTitle(postToEdit.title || '');
         setContent(postToEdit.content || '');
         setImage(null); // reset the image since it was previously uploaded
+      }else{
+        setTitle('')
+        setContent('')
+        setImage(null)
       }
     }, [postToEdit]);
 
@@ -24,27 +28,26 @@ const PostForm = ({ addNewPost, updatePost, postToEdit, setPostToEdit }) => {
 
     const handlePostForm =(e)=> {
         e.preventDefault();
-        if(title && content){
-            const updatedPost = {
-              ...postToEdit,
-              title: title,
-              content: content,
-              imageUrl: image ? URL.createObjectURL(image) : postToEdit?.imageUrl,
-            }
-              //console.log(updatePost)
-              if(postToEdit){
-                updatePost(updatedPost)
-                setPostToEdit(null)
-              }else{
-                addNewPost({ ...updatedPost, id: Date.now() }); // Add mode
-                setSaved(true)
-              }
-              setTitle('');
-              setContent('');
-              setImage(null);
-            } else {
-              alert("Title required");
-            }
+        e.preventDefault();
+        if (title && content) {
+          const newPost = {
+            title,
+            content,
+            imageUrl: image ? URL.createObjectURL(image) : postToEdit?.imageUrl,
+          };
+    
+          if (postToEdit) {
+            updatePost({ ...postToEdit, ...newPost });
+            setPostToEdit(null);
+          } else {
+            addNewPost({ ...newPost, id: Date.now() });
+          }
+    
+          navigate("/"); // Redirect to homepage
+        } else {
+          alert("Title and content are required.");
+        }
+        
     }
     /*
     The navigate() function should not be called directly inside the return statement 
@@ -54,6 +57,7 @@ const PostForm = ({ addNewPost, updatePost, postToEdit, setPostToEdit }) => {
      useEffect(()=>{
         if(saved){
             navigate('/')
+            setSaved(false); // Reset saved state
         }
      }, [saved, navigate]) // The effect re-runs whenever 'saved' or 'navigate' changes
      /*
@@ -63,7 +67,7 @@ const PostForm = ({ addNewPost, updatePost, postToEdit, setPostToEdit }) => {
 
     return(
         <form className="container" onSubmit={handlePostForm}>
-            <h1>{postToEdit ? 'Edit Post' : 'add a new post'}</h1>
+            <h1>{postToEdit ? 'Edit Post' : 'Add a new post'}</h1>
             <p>
                 <label htmlFor="form-title">Title:</label><br />
                 <input 
@@ -76,7 +80,6 @@ const PostForm = ({ addNewPost, updatePost, postToEdit, setPostToEdit }) => {
             <p>
                 <label htmlFor="form-content">Content:</label><br />
                 <textarea
-                placeholder="Content"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 required

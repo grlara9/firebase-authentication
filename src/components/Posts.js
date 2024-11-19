@@ -6,7 +6,7 @@ const Posts = ({posts, handleEdit, deletePost}) => (
         <article className='posts container'>
             <h1>Posts</h1>
             <ul>
-             {posts.length < 0 && 
+             {posts.length === 0 && 
              <li key="empty">No Posts Available!</li>
             }  
             {

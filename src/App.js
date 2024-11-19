@@ -43,7 +43,7 @@ function App() {
   }
 
   const getNewSlugFromTitle = (title) => {
-    encodeURIComponent(title.toLowerCase().split(" ").join("-"))
+    return encodeURIComponent(title.toLowerCase().split(" ").join("-"))
   }
 
   const addNewPost =(post) =>{
@@ -84,7 +84,7 @@ function App() {
   const router = createBrowserRouter( createRoutesFromElements(
     <Route path="/" element={ <Root  message={message}/> }>
       <Route index element={<Posts posts={posts} handleEdit={handleEdit} deletePost={deletePost}/>} />
-      <Route path='/new' element={<PostForm addNewPost={addNewPost} postToEdit={postToEdit} setPostToEdit={setPostToEdit}  />} />
+      <Route path='/new' element={<PostForm addNewPost={addNewPost}  updatePost={updatePost} postToEdit={null} setPostToEdit={setPostToEdit}  />} />
       <Route path='/post/:postSlug' element={<PostWithParams posts={posts}/>}/>
       <Route path='/edit/:postSlug' element={<EditWithParams posts={posts}/>} />
       <Route path='*' element={<NotFound />} />
@@ -107,7 +107,7 @@ function App() {
     console.log('post', post)
     useEffect(() => {
       if(!post){
-        navigate('/');
+        return <NotFound />
       }
     }, [post, navigate])
     //if no posts match the slug accessed, updated the post route to return NotFound
