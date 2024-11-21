@@ -1,7 +1,6 @@
 import React from 'react';
-import * as firebase from 'firebase/app';
-import 'firebase/auth';
-import 'firebase/database';
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 
 const config = {
     apiKey: "AIzaSyDma9FfcHBcqH_NgDSzxT_lAMBUf5MT6E8",
@@ -12,5 +11,9 @@ const config = {
     appId: "1:335145661546:web:f51efda01f5ff9dc9a4613",
     measurementId: "G-6LGK6T68JP"
 };
-firebase.initializeApp(config)
-export default firebase;
+
+// Initialize Firebase
+const app = initializeApp(config);
+
+// Initialize Firebase Auth
+export const auth = getAuth(app);
