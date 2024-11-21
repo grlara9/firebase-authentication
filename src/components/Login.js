@@ -6,8 +6,8 @@ const Login =()=> {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
   
-    const handleLogin = async(event) => {
-      event.preventDefault();
+    const handleLogin = async(e) => {
+      e.preventDefault();
       console.log(email, password);
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -23,14 +23,14 @@ const Login =()=> {
           <label htmlFor="email">Email:</label>
           <input
             type="email"
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </p>
         <p>
           <label htmlFor="password">Password:</label>
           <input
             type="password"
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </p>
         <p>
