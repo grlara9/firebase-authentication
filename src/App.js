@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import UserContext from './context/UserContext';
 import Root from './components/Root';
 import Posts from './components/Posts';
 import Post from './components/Post';
@@ -6,7 +7,11 @@ import PostForm from './components/PostForm';
 import NotFound from './components/NotFound';
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, useNavigate, useParams} from 'react-router-dom';
 import './App.css';
-
+import Register from './components/Register';
+import Login from './components/Login';
+import Logout from './components/Logout';
+import ProtectedRoute from './components/ProtectedRoute';
+import firebase from 'firebase/compat/app';
 
 
 function App() {
@@ -31,8 +36,8 @@ function App() {
     },
   ])
   const [postToEdit, setPostToEdit] = useState(null)
-  
   const [message, setMessage] = useState(null)
+  const [user, setUser] = useState({})
  
   
   const setFlashMessage = (message) => {
@@ -79,16 +84,35 @@ function App() {
       setFlashMessage(`deleted`);
   }
 
+  const onLogin = (email, password) => {
+    firebase
+      .auth()
+      .signInWithEmailAndPassword(email, password)
+      .then((response)=>{setUser({
+        email: response.user['email'],
+        isAuthenticated: true,
+      })
+    })
+    .catch((error) => console.error(error));
+  };
+
 
 
   const router = createBrowserRouter( createRoutesFromElements(
+    
+    
     <Route path="/" element={ <Root  message={message}/> }>
-      <Route index element={<Posts posts={posts} handleEdit={handleEdit} deletePost={deletePost}/>} />
-      <Route path='/new' element={<PostForm addNewPost={addNewPost}  updatePost={updatePost} postToEdit={null} setPostToEdit={setPostToEdit}  />} />
-      <Route path='/post/:postSlug' element={<PostWithParams posts={posts}/>}/>
-      <Route path='/edit/:postSlug' element={<EditWithParams posts={posts}/>} />
+    
+      <Route index element={<ProtectedRoute><Posts posts={posts} handleEdit={handleEdit} deletePost={deletePost}/> </ProtectedRoute>} />
+      <Route path='/new' element={<ProtectedRoute><PostForm addNewPost={addNewPost}  updatePost={updatePost} postToEdit={null} setPostToEdit={setPostToEdit}  /> </ProtectedRoute>} />
+      <Route path='/post/:postSlug' element={<ProtectedRoute> <PostWithParams posts={posts} /> </ProtectedRoute>} />
+      <Route path='/edit/:postSlug' element={<ProtectedRoute><EditWithParams posts={posts}/> </ProtectedRoute>} />
+      <Route path='/signup' element={<Register />} />
+      <Route path='/login' element={<Login onLogin={onLogin}/>} />
+      <Route path='/logout' element={<Logout />} />
       <Route path='*' element={<NotFound />} />
 
+    
     </Route>
   ))
 
@@ -120,7 +144,9 @@ function App() {
   
 
   return (
-    <RouterProvider router={router}/>
+    <UserContext.Provider value={{user, onLogin}}>
+      <RouterProvider router={router}/>
+    </UserContext.Provider>
   );
 }
 

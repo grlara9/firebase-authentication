@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "./firebase";
+import { auth } from "../firebase";
 
-const SignUp = () => {
+const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -35,4 +35,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default Register;
