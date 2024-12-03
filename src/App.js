@@ -5,15 +5,16 @@ import Posts from './components/Posts';
 import Post from './components/Post';
 import PostForm from './components/PostForm';
 import NotFound from './components/NotFound';
-import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, useNavigate, useParams} from 'react-router-dom';
+import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, redirect, useNavigate, useParams} from 'react-router-dom';
 import './App.css';
 import Register from './components/Register';
 import Login from './components/Login';
 import Logout from './components/Logout';
 import ProtectedRoute from './components/ProtectedRoute';
-import firebase from 'firebase/compat/app';
-
-
+import firebase from './firebase';
+import { auth } from './firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { Navigate } from 'react-router-dom';
 function App() {
   const [posts, setPosts] = useState([
     {
@@ -84,16 +85,13 @@ function App() {
       setFlashMessage(`deleted`);
   }
 
-  const onLogin = (email, password) => {
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
-      .then((response)=>{setUser({
-        email: response.user['email'],
-        isAuthenticated: true,
-      })
-    })
-    .catch((error) => console.error(error));
+  const onLogin = async(email, password) => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log("Logged in as:", userCredential.user);
+  } catch (error) {
+      console.error("Login failed:", error.message);
+  }
   };
 
 
@@ -108,7 +106,7 @@ function App() {
       <Route path='/post/:postSlug' element={<ProtectedRoute> <PostWithParams posts={posts} /> </ProtectedRoute>} />
       <Route path='/edit/:postSlug' element={<ProtectedRoute><EditWithParams posts={posts}/> </ProtectedRoute>} />
       <Route path='/signup' element={<Register />} />
-      <Route path='/login' element={<Login onLogin={onLogin}/>} />
+      <Route path='/login' element={!user.isAuthenticated ? <Login /> : <Navigate to= '/' replace />} />
       <Route path='/logout' element={<Logout />} />
       <Route path='*' element={<NotFound />} />
 
