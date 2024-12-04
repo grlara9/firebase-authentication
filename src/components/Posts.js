@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import UserContext from '../context/UserContext';
 
 const Posts = ({posts, handleEdit, deletePost}) => {
+
     const {user} =useContext(UserContext);
+
     return (
         <article className='posts container'>
             <h1>Posts</h1>

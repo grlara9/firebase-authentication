@@ -1,20 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import React, {  useState } from 'react'
 import UserContext from './context/UserContext';
 import Root from './components/Root';
 import Posts from './components/Posts';
 import Post from './components/Post';
 import PostForm from './components/PostForm';
 import NotFound from './components/NotFound';
-import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, redirect, useNavigate, useParams} from 'react-router-dom';
-import './App.css';
-import Register from './components/Register';
+import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, Navigate, useParams} from 'react-router-dom';
 import Login from './components/Login';
-import Logout from './components/Logout';
-import ProtectedRoute from './components/ProtectedRoute';
-import firebase from './firebase';
+import './App.css';
+import { signOut } from "firebase/auth";
 import { auth } from './firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { Navigate } from 'react-router-dom';
+
 function App() {
   const [posts, setPosts] = useState([
     {
@@ -39,110 +36,166 @@ function App() {
   const [postToEdit, setPostToEdit] = useState(null)
   const [message, setMessage] = useState(null)
   const [user, setUser] = useState({})
- 
-  
+
+
   const setFlashMessage = (message) => {
+    
     setMessage(message)
     setTimeout(() => {
       setMessage(null);
     }, 1600)
+    
   }
 
   const getNewSlugFromTitle = (title) => {
+
     return encodeURIComponent(title.toLowerCase().split(" ").join("-"))
   }
 
   const addNewPost =(post) =>{
+    
     post.id = posts.length + 1;
     post.slug = encodeURIComponent(
     post.title.toLowerCase().split(" ").join("-")
     );
     setPosts([...posts, post])
     setFlashMessage(`saved`)
+    
   }
 
   const handleEdit = (post) =>{
+    
     setPostToEdit(post);
+    
   }
-  console.log("ghj" + postToEdit)
+  
 
   const updatePost = (post)=>{
+    
     post.slug = getNewSlugFromTitle(post.title);
     const index = posts.findIndex((p) => p.id === post.id);
     const oldPosts = posts.slice(0, index).concat(posts.slice(index + 1));
     const updatedPosts = [...oldPosts, post].sort((a, b) => a.id - b.id);
     setPosts(updatedPosts);
     setFlashMessage(`updated`);
+    
   }
 
   
 
   const deletePost = (post) => {
+    
     const confirmDelete = window.confirm('Delete this post?');
     if(!confirmDelete) return;
     const updatedPosts = posts.filter((p) => p.id !== post.id);
       setPosts(updatedPosts);
       setFlashMessage(`deleted`);
+      
   }
-
   const onLogin = async(email, password) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log("Logged in as:", userCredential.user);
-  } catch (error) {
+      const response = await signInWithEmailAndPassword(auth, email, password);
+      console.log("Logged in as:", response.user);
+  
+      // Update UserContext
+      setUser({
+        email: response.user.email,
+        isAuthenticated: true,
+      });
+    } catch (error) {
       console.error("Login failed:", error.message);
-  }
+    }
   };
 
-
-
-  const router = createBrowserRouter( createRoutesFromElements(
-    
-    
-    <Route path="/" element={ <Root  message={message}/> }>
-    
-      <Route index element={<ProtectedRoute><Posts posts={posts} handleEdit={handleEdit} deletePost={deletePost}/> </ProtectedRoute>} />
-      <Route path='/new' element={<ProtectedRoute><PostForm addNewPost={addNewPost}  updatePost={updatePost} postToEdit={null} setPostToEdit={setPostToEdit}  /> </ProtectedRoute>} />
-      <Route path='/post/:postSlug' element={<ProtectedRoute> <PostWithParams posts={posts} /> </ProtectedRoute>} />
-      <Route path='/edit/:postSlug' element={<ProtectedRoute><EditWithParams posts={posts}/> </ProtectedRoute>} />
-      <Route path='/signup' element={<Register />} />
-      <Route path='/login' element={!user.isAuthenticated ? <Login /> : <Navigate to= '/' replace />} />
-      <Route path='/logout' element={<Logout />} />
-      <Route path='*' element={<NotFound />} />
-
-    
-    </Route>
-  ))
+  const onLogout = async() => {
+    try {
+      await signOut(auth);
+      setUser({ 
+        isAuthenticated: false 
+      });
+      console.log("User logged out successfully.");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
 
   function PostWithParams({posts}){
-    const { postSlug } = useParams();
-    const post = posts.find((post) => post.slug === postSlug);
-    //if no posts match the slug accessed, updated the post route to return NotFound
-    return post ? <Post post={post} /> : <NotFound />
-   
-  } 
-
-  function EditWithParams({posts}){
-    const { postSlug } = useParams();
-    const navigate = useNavigate();
-    const post = posts.find((post) => post.slug === postSlug);
-    console.log('post', post)
-    useEffect(() => {
-      if(!post){
-        return <NotFound />
-      }
-    }, [post, navigate])
-    //if no posts match the slug accessed, updated the post route to return NotFound
-
-    return post ? <PostForm post={post} 
-    updatePost={updatePost} postToEdit={post} setPostToEdit={() => {}}/> :  null;
-   
-  }
+    
+      const { postSlug } = useParams();
+      const post = posts.find((post) => post.slug === postSlug);
+      //if no posts match the slug accessed, updated the post route to return NotFound
+      return post ? <Post post={post} /> : <NotFound />
+    } 
+  
+    function EditWithParams({posts}){
+      const { postSlug } = useParams();
+      const post = posts.find((post) => post.slug === postSlug);
+        if(!post){
+          return <NotFound />
+        }
+      
+      //if no posts match the slug accessed, updated the post route to return NotFound
+      return post ? <PostForm post={post} 
+      updatePost={updatePost} postToEdit={post} setPostToEdit={() => {}}/> :  null;
+    }
 
   
 
+  const router = createBrowserRouter( createRoutesFromElements(
+    <Route path="/" element={ <Root  message={message}/> }>
+      <Route 
+      index element={
+        
+          <Posts posts={posts} handleEdit={handleEdit} deletePost={deletePost}/>
+       
+      }
+      />
+
+      <Route 
+      path='/new' 
+      element={
+        user.isAuthenticated ? (
+          <PostForm 
+            addNewPost={addNewPost}  
+            updatePost={updatePost} 
+            postToEdit={null} 
+            setPostToEdit={setPostToEdit}  
+          /> 
+        ):(
+          <Navigate to='/login' replace />
+        )
+       } 
+      />
+      <Route 
+        path='/post/:postSlug' 
+        element={
+          
+            <PostWithParams posts={posts} /> 
+          } 
+      />
+      <Route 
+        path='/edit/:postSlug' 
+        element={
+          user.isAuthenticated ? (
+              <EditWithParams posts={posts} updatePost={updatePost}/> 
+          ):(
+            <Navigate to="/login" replace />
+          )
+          } 
+      />
+      
+      <Route path='/login' 
+          element={ 
+            !user.isAuthenticated ? <Login /> : <Navigate to="/" replace />
+        } 
+      />
+      
+      <Route path='*' element={<NotFound />} />
+    </Route>
+  ))
+
   return (
-    <UserContext.Provider value={{user, onLogin}}>
+    <UserContext.Provider value={{user, onLogin, onLogout}}>
       <RouterProvider router={router}/>
     </UserContext.Provider>
   );

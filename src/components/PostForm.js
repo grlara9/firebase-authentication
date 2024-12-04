@@ -54,12 +54,14 @@ const PostForm = ({ addNewPost, updatePost, postToEdit, setPostToEdit }) => {
     because it is not meant to be rendered as part of the JSX. It should be called conditionally 
     or after an action within a useEffect or after a state update.
     */
+   /*
      useEffect(()=>{
         if(saved){
             navigate('/')
             setSaved(false); // Reset saved state
         }
      }, [saved, navigate]) // The effect re-runs whenever 'saved' or 'navigate' changes
+     */
      /*
         Empty Array []: If you pass an empty array, useEffect runs only once when the component mounts and never again.
         No Dependency Array: Without a dependency array, useEffect runs after every render, which can lead to performance issues or unwanted behavior.

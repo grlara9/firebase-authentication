@@ -1,20 +1,17 @@
 import React, {useContext, useState} from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
 import UserContext from "../context/UserContext";
 
 const Login =(props)=> {
-  const {onLogin} = useContext(UserContext);
+    const { onLogin } = useContext(UserContext)
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-  
-    const handleLogin = (e) => {
-      e.preventDefault();
-      console.log(email, password);
-      onLogin(email, password)
-      
-    };
-  
+
+    const handleLogin = (event) => {
+      event.preventDefault();
+      console.log(email, password)
+      onLogin(email, password);
+    }
+    
     return (
       <form className="container" name="login" onSubmit={handleLogin}>
         <p>

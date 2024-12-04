@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useContext } from "react";
 import { signOut } from 'firebase/auth'
 import { auth } from '../firebase'
+import UserContext from "../context/UserContext";
 
 const Logout = () => {
+  const { logout } = useContext(UserContext)
+
     const handleLogout = async () =>{
-        try {
+        try { 
             await signOut(auth);
+            logout();
             console.log("User logged out");
           } catch (error) {
             console.error("Error logging out:", error.message);
