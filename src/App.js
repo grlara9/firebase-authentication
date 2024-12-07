@@ -7,11 +7,10 @@ import PostForm from './components/PostForm';
 import NotFound from './components/NotFound';
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, Navigate, useParams} from 'react-router-dom';
 import Login from './components/Login';
+import Register from './components/Register';
 import './App.css';
-import { signOut } from "firebase/auth";
-import { auth } from './firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, signOut  } from "firebase/auth";
+import { auth, googleProvider } from './firebase';
 function App() {
   const [posts, setPosts] = useState([
     {
@@ -19,18 +18,6 @@ function App() {
       slug: 'Hello-React',
       title: 'Hello React',
       content: "The error you're seeing is because npm cannot locate a package.json file in your project directory The package.json file is necessary for npm to know what scripts to run and which dependencies to load."
-    },
-    {
-      id: 2,
-      slug: 'Second-posts', 
-      title: 'Second posts',
-      content: "Simple SDK Integration: The Firebase SDK makes it easy to connect to your React app and provides simple methods for signing in, signing up, and managing user sessions."
-    },
-    {
-      id: 3,
-      slug: 'Third-post',
-      title: 'Third post',
-      content: "Set up a login and register form and use Firebase’s signInWithEmailAndPassword and createUserWithEmailAndPassword methods."
     },
   ])
   const [postToEdit, setPostToEdit] = useState(null)
@@ -48,25 +35,19 @@ function App() {
   }
 
   const getNewSlugFromTitle = (title) => {
-
     return encodeURIComponent(title.toLowerCase().split(" ").join("-"))
   }
 
   const addNewPost =(post) =>{
-    
     post.id = posts.length + 1;
-    post.slug = encodeURIComponent(
-    post.title.toLowerCase().split(" ").join("-")
-    );
+    post.slug = getNewSlugFromTitle(post.title)
     setPosts([...posts, post])
     setFlashMessage(`saved`)
     
   }
 
   const handleEdit = (post) =>{
-    
     setPostToEdit(post);
-    
   }
   
 
@@ -81,8 +62,6 @@ function App() {
     
   }
 
-  
-
   const deletePost = (post) => {
     
     const confirmDelete = window.confirm('Delete this post?');
@@ -90,8 +69,8 @@ function App() {
     const updatedPosts = posts.filter((p) => p.id !== post.id);
       setPosts(updatedPosts);
       setFlashMessage(`deleted`);
-      
   }
+
   const onLogin = async(email, password) => {
     try {
       const response = await signInWithEmailAndPassword(auth, email, password);
@@ -106,6 +85,34 @@ function App() {
       console.error("Login failed:", error.message);
     }
   };
+
+  const onRegister = async(email, password) => {
+    try{
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      console.log("Registered user:", result.user);
+
+      setUser({
+        email: result.user.email,
+        isAuthenticated: true,
+      })
+    }catch(error){
+      console.error("Registration failed:", error.message)
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      // The signed-in user's info can be retrieved from result.user
+      console.log("User Info:", result.user);
+      setUser({
+        email: result.user.email,
+        isAuthenticated: true,
+      });
+  } catch (error) {
+      console.error("Error during Google Sign-In:", error.message);
+  }
+};
 
   const onLogout = async() => {
     try {
@@ -189,13 +196,14 @@ function App() {
             !user.isAuthenticated ? <Login /> : <Navigate to="/" replace />
         } 
       />
-      
+
+      <Route path="/register" element={ !user.isAuthenticated ? <Register /> : <Navigate to="/" replace /> } />
       <Route path='*' element={<NotFound />} />
     </Route>
   ))
 
   return (
-    <UserContext.Provider value={{user, onLogin, onLogout}}>
+    <UserContext.Provider value={{user, onLogin, onRegister, onLogout, handleGoogleSignIn}}>
       <RouterProvider router={router}/>
     </UserContext.Provider>
   );

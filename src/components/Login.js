@@ -1,8 +1,9 @@
 import React, {useContext, useState} from "react";
 import UserContext from "../context/UserContext";
+import { Link } from "react-router-dom";
 
 const Login =(props)=> {
-    const { onLogin } = useContext(UserContext)
+    const { onLogin, handleGoogleSignIn } = useContext(UserContext)
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -11,12 +12,15 @@ const Login =(props)=> {
       console.log(email, password)
       onLogin(email, password);
     }
+
     
     return (
+      <div>
       <form className="container" name="login" onSubmit={handleLogin}>
         <p>
           <label htmlFor="email">Email:</label>
           <input
+            id='email'
             type="email"
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -24,16 +28,22 @@ const Login =(props)=> {
         <p>
           <label htmlFor="password">Password:</label>
           <input
+          id='password'
             type="password"
             onChange={(e) => setPassword(e.target.value)}
           />
         </p>
         <p>
-          <button type="submit" disabled={!email && !password}>
+          <button type="submit" disabled={!email || !password}>
             Login
           </button>
         </p>
+        <p>
+          Don't have an account? <Link to="/register">Register here</Link>
+        </p>
       </form>
+          <button onClick={handleGoogleSignIn}>Google</button>
+          </div>
     );
   };
   export default Login;
